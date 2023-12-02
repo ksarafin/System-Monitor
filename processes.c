@@ -1,85 +1,43 @@
-/* 
-* CS252-Proj6
-*
-* Basic Code for getting stuff from /proc:
-* https://stackoverflow.com/questions/63372288/getting-list-of-pids-from-proc-in-linux
-* 
-* Fields in /proc/pid/stat we need for 1.2
-* 1 (pid), 2 (process name)
-*
-* Fields in /proc/pid/stat we need for 1.2.2
-* 2 (process name), 3 (state), 14 (user time) + 15 (system time), 23 (virtual mem size)
-* Fields in /proc/pid/smaps we need for 1.2.2
-* Rss (resident memory), Shared_Clean + Shared Dirty (shared memory)
-* 
-* Grep for pid from 'ps -eo pid,lstart' for start date/time
-*
-* Don't know how to get total memory (sum all sections?) or cpu time (user + sys?)
-*/
-
-#include <sys/types.h>
-#include <dirent.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
-#include <ctype.h>
 
-// Helper function to check if a struct dirent from /proc is a PID directory.
-int is_pid_dir(const struct dirent *entry) {
-    const char *p;
+int main(int argc, char* argv[])
+{
+        // Initialize pipes and other stuff
+        int pipes[2];
+        int ret;
+        char buffer[4096];
 
-    for (p = entry->d_name; *p; p++) {
-        if (!isdigit(*p))
-            return 0;
-    }
+        pipe(pipes);
+        ret = fork();
 
-    return 1;
-}
-
-int main(void) {
-    DIR *procdir;
-    FILE *fp;
-    struct dirent *entry;
-    char path[256 + 5 + 5]; // d_name + /proc + /stat
-    
-    int pid;
-    char proc_name[256];
-    char state:
-    unsigned long sys_time;
-    unsigned long user_time;
-    unsigned long vm_size;
-    
-
-    // Open /proc directory.
-    procdir = opendir("/proc");
-    if (!procdir) {
-        perror("opendir failed");
-        return 1;
-    }
-
-    // Iterate through all files and directories of /proc.
-    while ((entry = readdir(procdir))) {
-        // Skip anything that is not a PID directory.
-        if (!is_pid_dir(entry))
-            continue;
-
-        // Try to open /proc/<PID>/stat.
-        snprintf(path, sizeof(path), "/proc/%s/stat", entry->d_name);
-        fp = fopen(path, "r");
-
-        if (!fp) {
-            perror(path);
-            continue;
+        if (ret == 0) {
+          // Redirect output and call exec on "ps -eo pid,cmd,lstart,s,time,%cpu"
+          dup2(pipes[1], STDOUT_FILENO);
+          close(pipes[1]);
+          close(pipes[0]);
+            
+          // Pid used to grep for info, cmd give process name, lstart gives start time and date,
+          // s gives state, others are self explanatory
+          char * args[4] = {"ps", "-eo", "pid,cmd,lstart,s,time,%cpu", NULL};
+          execv("/bin/ps", args);
         }
+        else {
+          close(pipes[1]);
 
-        // Get PID, process name and number of faults.
-        fscanf(fp, "%d %s %c %*d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %lu %lu %*ld %*ld %*ld %*ld %*ld %*ld %*llu %lu",
-            &pid, &proc_name, &state, &user_time, %sys_time, &vm_size); 
-        );
+          // Read input from pipe and print to screen to check that it's correct  
+          while (1) {
+            int nbytes = read(pipes[0], buffer, sizeof(buffer));
 
-        // Pretty print.
-        printf("%5d %-20s: %c %lu %lu\n", pid, path, state, user_time + sys_time, vm_size);
-        fclose(fp);
-    }
+            // If nothing read, print new line  
+            if (nbytes == 0) {
+              printf("\n");
+              break;
+            }
 
-    closedir(procdir);
-    return 0;
+            printf("%s", buffer);
+          }
+        }
+}
 }
