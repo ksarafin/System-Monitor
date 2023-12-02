@@ -1,3 +1,10 @@
+/* 
+* So this only prints out all the info we need, barring memory, to the terminal.
+* I'll probably adjust it to only print pid and command name for the initial menu and then run
+* execv again and grep by pid for the extra information section. Just wanted to get the fork and
+* redirection working before I complicated things. 
+*/        
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +33,7 @@ int main(int argc, char* argv[])
         else {
           close(pipes[1]);
 
-          // Read input from pipe and print to screen to check that it's correct  
+          // Read input from pipe and print to screen to check that it's correct     
           while (1) {
             int nbytes = read(pipes[0], buffer, sizeof(buffer));
 
