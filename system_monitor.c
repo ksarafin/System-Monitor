@@ -170,11 +170,11 @@ int main(int argc, char *argv[]) {
   GtkWidget *process_label = gtk_label_new("Processes");
 
   GtkListStore *process_list_store = gtk_list_store_new(NUM_COLUMNS,
-      G_TYPE_STRING,  // Process Name
-      G_TYPE_STRING,  // Status
-      G_TYPE_DOUBLE,  // %CPU
-      G_TYPE_UINT,    // ID
-      G_TYPE_UINT64); // Memory
+      G_TYPE_STRING,
+      G_TYPE_STRING,  
+      G_TYPE_DOUBLE, 
+      G_TYPE_UINT,  
+      G_TYPE_UINT64); 
 
   // Create the process table view
   GtkWidget *process_treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(process_list_store));
@@ -209,12 +209,12 @@ int main(int argc, char *argv[]) {
   GtkWidget *file_system_label = gtk_label_new("File Systems");
 
   GtkListStore *file_system_list_store = gtk_list_store_new(FILE_SYSTEM_NUM_COLUMNS,
-      G_TYPE_STRING,  // Device
-      G_TYPE_STRING,  // Directory
-      G_TYPE_STRING,  // Type
-      G_TYPE_UINT64,  // Free Space
-      G_TYPE_UINT64,  // Available Space
-      G_TYPE_UINT64); // Used Space
+      G_TYPE_STRING, 
+      G_TYPE_STRING, 
+      G_TYPE_STRING,  
+      G_TYPE_UINT64,  
+      G_TYPE_UINT64,  
+      G_TYPE_UINT64); 
 
   // Create the file systems table view
   GtkWidget *file_system_treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(file_system_list_store));
@@ -245,10 +245,8 @@ int main(int argc, char *argv[]) {
 
   // Set the label for the "File Systems" notebook page
   gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(notebook), GTK_WIDGET(file_system_scrolled_window), "File Systems");
-
-  //gtk_notebook_append_page(GTK_NOTEBOOK(notebook), gtk_label_new("Processes"), process_label);
+  
   gtk_notebook_append_page(GTK_NOTEBOOK(notebook), gtk_label_new("Resources"), resource_label);
-  //gtk_notebook_append_page(GTK_NOTEBOOK(notebook), gtk_label_new("File Systems"), file_system_label);
 
   // Connect the "switch-page" signal to the callback
   //g_signal_connect(notebook, "switch-page", G_CALLBACK(on_switch_page), window);
