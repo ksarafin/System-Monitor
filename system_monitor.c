@@ -140,6 +140,7 @@ void populate_process_table(GtkListStore *list_store) {
           4, memory_usage,
           -1);
       }
+    }
   }
 }
 
