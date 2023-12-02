@@ -139,6 +139,7 @@ void populate_process_table(GtkListStore *list_store) {
           3, process_id,
           4, memory_usage,
           -1);
+      }
   }
 }
 
