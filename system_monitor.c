@@ -86,30 +86,61 @@ gtk_window_resize(GTK_WINDOW(window), requisition.width, requisition.height);
 }*/
 
 void populate_process_table(GtkListStore *list_store) {
-  // You should replace this with your actual process data retrieval logic
-  // For now, let's use some dummy data
-  for (int i = 0; i < 10; ++i) {
-    gchar *process_name = g_strdup_printf("Process %d", i);
-    gchar *status = g_strdup_printf("Running");
-    gdouble cpu_percentage = 10.0 * i;
-    guint process_id = 1000 + i;
-    gsize memory_usage = 512 * (i + 1);
+  int pipes[2];
+  int ret;
+  char buffer[1];
+  char * proc_string = malloc(512);
+  memset(proc_string, '\0', 512);
+  char * populate;
 
-    GtkTreeIter iter;
-    gtk_list_store_append(list_store, &iter);
-    gtk_list_store_set(list_store, &iter, 
-        0, process_name,
-        1, status,
-        2, cpu_percentage,
-        3, process_id,
-        4, memory_usage,
-        -1);
+  int i = 0;
 
-    g_free(process_name);
-    g_free(status);
+  pipe(pipes);
+  ret = fork();
+
+  if (ret == 0) {
+    dup2(pipes[1], STDOUT_FILENO);
+    close(pipes[1]);
+    close(pipes[0]);
+
+    char * args[4] = {"ps", "-eo", "s,%cpu,pid,size,cmd", NULL};
+    execv("/bin/ps", args);
+  }
+  else {
+    close(pipes[1]);
+
+    while (1) {
+      int nbytes = read(pipes[0], buffer, sizeof(buffer));
+
+      if (nbytes == 0) {
+        break;
+      }
+
+      proc_string[i++] = buffer[0];
+
+      if (strstr(proc_string,"\n") != NULL) {
+        proc_string[i] = '\0';
+        populate = strdup(proc_string);
+        memset(proc_string, '\0', 512);
+        i = 0;
+
+        gchar * status = strtok(populate, " ");
+        gchar * cpu_percentage = strtok(NULL, " ");
+        gchar * process_id = strtok(NULL, " ");
+        gchar * memory_usage = strtok(NULL, " ");
+        gchar * process_name = strtok(NULL, "\n");
+ 
+        GtkTreeIter iter;
+        gtk_list_store_append(list_store, &iter);
+        gtk_list_store_set(list_store, &iter,
+          0, process_name,
+          1, status,
+          2, cpu_percentage,
+          3, process_id,
+          4, memory_usage,
+          -1);
   }
 }
-
 
 int main(int argc, char *argv[]) {
 
@@ -172,8 +203,8 @@ int main(int argc, char *argv[]) {
   GtkListStore *process_list_store = gtk_list_store_new(NUM_COLUMNS,
       G_TYPE_STRING,
       G_TYPE_STRING,  
-      G_TYPE_DOUBLE, 
-      G_TYPE_UINT,  
+      G_TYPE_STRING, 
+      G_TYPE_STRING,  
       G_TYPE_UINT64); 
 
   // Create the process table view
