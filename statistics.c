@@ -27,7 +27,10 @@ void calculate_memory_swap_usage(double *memory_usage, double *swap_usage) {
     }
 
     // Variables to store memory and swap information
-    long total_memory, free_memory, total_swap, free_swap;
+    long total_memory = 0;
+    long free_memory = 0;
+    long total_swap = 0;
+    long free_swap = 0;
     char line[100];
 
     // Read lines from /proc/meminfo and extract relevant information
@@ -60,7 +63,8 @@ void calculate_network_usage() {
 
     // Variables to store network information
     char line[256];
-    long received_bytes, transmitted_bytes;
+    long received_bytes = 0;
+    long transmitted_bytes = 0;
 
     // Skip the first two lines of headers in /proc/net/dev
     fgets(line, sizeof(line), netdev_file);
