@@ -2,11 +2,19 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <gtk/gtk.h>
 
 int g_num_samples = 0; 
 int g_delay_seconds = 0;
 long int g_last_total_time = 0;
 long int g_last_idle_time = 0;
+
+GtkWidget *cpu_label;
+GtkWidget *cpu_progress;
+GtkWidget *memory_label;
+GtkWidget *memory_progress;
+GtkWidget *swap_label;
+GtkWidget *swap_progress;
 
 void calculate_memory_swap_usage(double *memory_usage, double *swap_usage) {
     // Open /proc/meminfo for reading
@@ -120,34 +128,93 @@ double calculate_cpu_usage() {
     return 100 - idle_percentage;
 }
 
+void update_stats() {
+    double cpu_usage = 0.0;
+    double memory_usage = 0.0;
+    double swap_usage = 0.0;
+
+    // Calculate CPU, memory, and swap usage
+    cpu_usage = calculate_cpu_usage();
+    calculate_memory_swap_usage(&memory_usage, &swap_usage);
+    calculate_network_usage();
+
+    // updating labels and progress bars for:
+
+    // 1. CPU Usage
+    char text[100];
+    snprintf(text, sizeof(text), "CPU Usage: %.2lf%%", cpu_usage);
+    gtk_label_set_text(GTK_LABEL(cpu_label), text);
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cpu_progress), cpu_usage / 100.0);
+
+    // 2. Memory Usage
+    snprintf(text, sizeof(text), "Memory Usage: %.2lf%%", memory_usage);
+    gtk_label_set_text(GTK_LABEL(memory_label), text);
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(memory_progress), memory_usage / 100.0);
+
+    // 3. Swap Usage
+    snprintf(text, sizeof(text), "Swap Usage: %.2lf%%", swap_usage);
+    gtk_label_set_text(GTK_LABEL(swap_label), text);
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(swap_progress), swap_usage / 100.0);
+}
+
 
 int main(int argc, char *argv[]) {
     // check if the correct number of command-line arguments is provided
     if (argc != 3) {
         printf("Usage: %s <number of samples /proc/stat should be polled followed by delay in seconds>\n", argv[0]);
-    } else {
-        // parse command-line arguments
-        g_num_samples = atoi(argv[1]);
-        g_delay_seconds = atoi(argv[2]);
+        return -1;
+    } 
+    // parse command-line arguments
+    g_num_samples = atoi(argv[1]);
+    g_delay_seconds = atoi(argv[2]);
 
-        // loop for the specified number of samples
-        while (g_num_samples > 0) {
-            // open /proc/stat for reading
-            double cpu_usage = calculate_cpu_usage();
+    // initialize GTK
+    gtk_init(&argc, &argv);
 
-            // Calculate memory and swap usage
-            double memory_usage = 0.0;
-            double swap_usage = 0.0;
-            calculate_memory_swap_usage(&memory_usage, &swap_usage);
-            calculate_network_usage();
+    // main window
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "System Monitor");
+    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-            // print the result
-            //printf("Busy for: %.2lf%% of the time.\n", idle_percentage);
+    // grid for organizing widgets
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 5);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
+    gtk_container_add(GTK_CONTAINER(window), grid);
 
-            // decrement the number of samples and sleep for the specified delay
-            g_num_samples--;
-            sleep(g_delay_seconds);
-        }
-    }
+    // labels + progress bars for:
+    cpu_label = gtk_label_new("CPU Usage:");
+    gtk_grid_attach(GTK_GRID(grid), cpu_label, 0, 0, 1, 1);
+
+    // 1. CPU Usage
+    cpu_progress = gtk_progress_bar_new();
+    gtk_grid_attach(GTK_GRID(grid), cpu_progress, 1, 0, 1, 1);
+
+    memory_label = gtk_label_new("Memory Usage:");
+    gtk_grid_attach(GTK_GRID(grid), memory_label, 0, 1, 1, 1);
+
+    // 2. Memory Usage
+    memory_progress = gtk_progress_bar_new();
+    gtk_grid_attach(GTK_GRID(grid), memory_progress, 1, 1, 1, 1);
+
+    swap_label = gtk_label_new("Swap Usage:");
+    gtk_grid_attach(GTK_GRID(grid), swap_label, 0, 2, 1, 1);
+
+    // 3. Swap Usage
+    swap_progress = gtk_progress_bar_new();
+    gtk_grid_attach(GTK_GRID(grid), swap_progress, 1, 2, 1, 1);
+
+    // timer allowing us to update stats at certain time intervals
+    guint timer_id = g_timeout_add_seconds(g_delay_seconds, (GSourceFunc)on_timer_event, window);
+
+    // showing all the created widgets
+    gtk_widget_show_all(window);
+
+    // starting the GTK main loop, continue until we hit as many repeats
+    // tentative for now, will/might fix later
+    gtk_main();
+
+    // cleaning up our stuff
+    g_source_remove(timer_id);
     return 0;
 }
