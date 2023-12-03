@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 
+/*
 int g_num_samples = 0; 
 int g_delay_seconds = 0;
 long int g_last_total_time = 0;
@@ -15,6 +16,7 @@ GtkWidget *memory_label;
 GtkWidget *memory_progress;
 GtkWidget *swap_label;
 GtkWidget *swap_progress;
+*/
 
 void calculate_memory_swap_usage(double *memory_usage, double *swap_usage) {
     // Open /proc/meminfo for reading
