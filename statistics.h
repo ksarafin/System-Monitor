@@ -14,6 +14,9 @@ extern GtkWidget *memory_label;
 extern GtkWidget *memory_progress;
 extern GtkWidget *swap_label;
 extern GtkWidget *swap_progress;
+extern GtkWidget *cpu_graph;
+extern GtkWidget *memory_graph;
+extern GtkWidget *swap_graph;
 
 void calculate_memory_swap_usage(double *memory_usage, double *swap_usage);
 void calculate_network_usage();
