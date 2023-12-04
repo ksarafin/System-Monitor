@@ -139,7 +139,7 @@ void update_stats() {
     double memory_usage = 0.0;
     double swap_usage = 0.0;
 
-    // Calculate CPU, memory, and swap usage
+    // calculate CPU, memory, and swap usage
     cpu_usage = calculate_cpu_usage();
     calculate_memory_swap_usage(&memory_usage, &swap_usage);
     calculate_network_usage();
@@ -217,7 +217,14 @@ int main(int argc, char *argv[]) {
     gtk_widget_show_all(window);
 
     // starting the GTK main loop, continue until we hit as many repeats
-    // tentative for now, will/might fix later
+    while (1) {
+        // Calculate and update statistics
+        update_stats();
+
+        // Delay for the specified interval
+        sleep(g_delay_seconds);
+    }
+    
     gtk_main();
 
     // cleaning up our stuff
