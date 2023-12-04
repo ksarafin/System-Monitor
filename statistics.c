@@ -332,35 +332,37 @@ int main(int argc, char *argv[]) {
     cpu_label = gtk_label_new("CPU Usage:");
     gtk_grid_attach(GTK_GRID(grid), cpu_label, 0, 0, 1, 1);
 
-    cpu_progress = gtk_progress_bar_new();
-    gtk_grid_attach(GTK_GRID(grid), cpu_progress, 1, 0, 1, 1);
+    cpu_graph = gtk_drawing_area_new();
+    gtk_widget_set_size_request(cpu_graph, 200, 100);
+    gtk_grid_attach(GTK_GRID(grid), cpu_graph, 1, 0, 1, 1);
+    g_signal_connect(cpu_graph, "draw", G_CALLBACK(draw_cpu_graph), NULL);
 
     // 2. Memory Usage
     memory_label = gtk_label_new("Memory Usage:");
     gtk_grid_attach(GTK_GRID(grid), memory_label, 0, 1, 1, 1);
 
-    memory_progress = gtk_progress_bar_new();
-    gtk_grid_attach(GTK_GRID(grid), memory_progress, 1, 1, 1, 1);
+    memory_graph = gtk_drawing_area_new();
+    gtk_widget_set_size_request(memory_graph, 200, 100);
+    gtk_grid_attach(GTK_GRID(grid), memory_graph, 1, 1, 1, 1);
+    g_signal_connect(memory_graph, "draw", G_CALLBACK(draw_memory_graph), NULL);
 
     // 3. Swap Usage
     swap_label = gtk_label_new("Swap Usage:");
     gtk_grid_attach(GTK_GRID(grid), swap_label, 0, 2, 1, 1);
 
-    swap_progress = gtk_progress_bar_new();
-    gtk_grid_attach(GTK_GRID(grid), swap_progress, 1, 2, 1, 1);
+    swap_graph = gtk_drawing_area_new();
+    gtk_widget_set_size_request(swap_graph, 200, 100);
+    gtk_grid_attach(GTK_GRID(grid), swap_graph, 1, 2, 1, 1);
+    g_signal_connect(swap_graph, "draw", G_CALLBACK(draw_swap_graph), NULL);
 
     // 4. Network Usage
     GtkWidget *network_label = gtk_label_new("Network Usage:");
     gtk_grid_attach(GTK_GRID(grid), network_label, 0, 4, 1, 1);
 
-    GtkWidget *network_progress = gtk_progress_bar_new();
-    gtk_grid_attach(GTK_GRID(grid), network_progress, 1, 4, 1, 1);
-
-    // Graphs
-    create_graph(grid, &cpu_graph, "CPU Graph:", G_CALLBACK(draw_cpu_graph));
-    create_graph(grid, &memory_graph, "Memory Graph:", G_CALLBACK(draw_memory_graph));
-    create_graph(grid, &swap_graph, "Swap Graph:", G_CALLBACK(draw_swap_graph));
-    create_graph(grid, &network_graph, "Network Graph:", G_CALLBACK(draw_network_graph));
+    GtkWidget *network_graph = gtk_drawing_area_new();
+    gtk_widget_set_size_request(network_graph, 200, 100);
+    gtk_grid_attach(GTK_GRID(grid), network_graph, 1, 3, 1, 1);
+    g_signal_connect(network_graph, "draw", G_CALLBACK(draw_network_graph), NULL);
 
     // timer allowing us to update stats at certain time intervals
     guint timer_id = g_timeout_add_seconds(g_delay_seconds, (GSourceFunc)upstate_stats, window);
