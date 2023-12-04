@@ -9,16 +9,6 @@
 #include "file_system_table.h"
 #include "process_table.h"
 
-const gchar *file_system_column_names[FILE_SYSTEM_NUM_COLUMNS] = {
-  "Device",
-  "Directory",
-  "Type",
-  "Total",
-  "Free",
-  "Available",
-  "Used"
-};
-
 void on_process_right_click(GtkTreeView *treeview, GdkEventButton *event, gpointer user_data) {
     if (event->type == GDK_BUTTON_PRESS && event->button == GDK_BUTTON_SECONDARY) {
         // Get the path at the click position
