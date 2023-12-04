@@ -4,16 +4,18 @@
 #include <string.h>
 #include <sys/utsname.h>
 #include <stdbool.h>
+#include <sys/vfs.h>
 
 #include "process_table.h"
 
 // Define the number of columns in the table
-#define FILE_SYSTEM_NUM_COLUMNS 6
+#define FILE_SYSTEM_NUM_COLUMNS 7
 
 typedef struct {
   gchar *device;
   gchar *directory;
   gchar *type;
+  guint64 total_space;
   guint64 free_space;
   guint64 available_space;
   guint64 used_space;
@@ -23,6 +25,7 @@ const gchar *file_system_column_names[FILE_SYSTEM_NUM_COLUMNS] = {
   "Device",
   "Directory",
   "Type",
+  "Total",
   "Free",
   "Available",
   "Used"
@@ -70,31 +73,36 @@ void populate_file_system_table(GtkListStore *list_store) {
     while (fgets(line, sizeof(line), file) != NULL) {
         // Tokenize the line using whitespace as a delimiter
         char *token;
-        char *tokens[13];  // Increase the array size to accommodate all expected tokens
+        char *tokens[12];  // Increase the array size to accommodate all expected tokens
         int tokenCount = 0;
 
         token = strtok(line, " ");
-        while (token != NULL && tokenCount < 13) {
+        while (token != NULL && tokenCount < 12) {
             tokens[tokenCount++] = token;
             token = strtok(NULL, " ");
         }
 
-        if (tokenCount >= 13) {
-            gchar *device_name = g_strdup(tokens[3]);
+        if (tokenCount >= 11) {
+            gchar *device_name = g_strdup(tokens[4]);
+
+            struct statfs sb;
+
+            statfs(tokens[4],&sb);
 
             if (device_name != NULL) {
                 FileSystemData data = {
                     .device = device_name,
-                    .directory = g_strdup(tokens[4]),
-                    .type = g_strdup(tokens[5]),
-                    .free_space = strtoul(tokens[10], NULL, 10) * 1024,  // Convert from KB to Bytes
-                    .available_space = strtoul(tokens[11], NULL, 10) * 1024,  // Convert from KB to Bytes
-                    .used_space = strtoul(tokens[12], NULL, 10) * 1024  // Convert from KB to Bytes
+                    .directory = g_strdup(tokens[3]),
+                    .type = strdup("IDK"),
+                    .total_space = sb.f_blocks,
+                    .free_space = sb.f_bfree,
+                    .available_space = sb.f_bavail,
+                    .used_space = sb.f_blocks - sb.f_bfree
                 };
 
                 // Print debug information
-                g_print("Device: %s, Directory: %s, Type: %s, Free: %lu, Available: %lu, Used: %lu\n",
-                        data.device, data.directory, data.type, data.free_space, data.available_space, data.used_space);
+                //g_print("Device: %s, Directory: %s, Type: %s, Free: %lu, Available: %lu, Used: %lu\n",
+                  //      data.device, data.directory, data.type, data.free_space, data.available_space, data.used_space);
 
                 GtkTreeIter iter;
                 gtk_list_store_append(list_store, &iter);
@@ -102,9 +110,10 @@ void populate_file_system_table(GtkListStore *list_store) {
                                     0, data.device,
                                     1, data.directory,
                                     2, data.type,
-                                    3, data.free_space,
-                                    4, data.available_space,
-                                    5, data.used_space,
+                                    3, data.total_space,
+                                    4, data.free_space,
+                                    5, data.available_space,
+                                    6, data.used_space,
                                     -1);
 
                 // Free the memory allocated for the strings in data
@@ -221,10 +230,10 @@ int main(int argc, char *argv[]) {
 
   GtkListStore *process_list_store = gtk_list_store_new(NUM_COLUMNS,
       G_TYPE_STRING,
-      G_TYPE_STRING,  
-      G_TYPE_DOUBLE, 
-      G_TYPE_UINT,  
-      G_TYPE_UINT64); 
+      G_TYPE_STRING,
+      G_TYPE_DOUBLE,
+      G_TYPE_UINT,
+      G_TYPE_UINT64);
 
   // Create the process table view
   GtkWidget *process_treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(process_list_store));
@@ -258,17 +267,18 @@ int main(int argc, char *argv[]) {
   gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(notebook), GTK_WIDGET(process_scrolled_window), "Processes");
 
   GtkWidget *resource_label = gtk_label_new("Resources");
-  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), gtk_label_new("Resources"), resource_label);  
+  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), gtk_label_new("Resources"), resource_label);
 
   GtkWidget *file_system_label = gtk_label_new("File Systems");
 
   GtkListStore *file_system_list_store = gtk_list_store_new(FILE_SYSTEM_NUM_COLUMNS,
-      G_TYPE_STRING, 
-      G_TYPE_STRING, 
-      G_TYPE_STRING,  
-      G_TYPE_UINT64,  
-      G_TYPE_UINT64,  
-      G_TYPE_UINT64); 
+      G_TYPE_STRING,
+      G_TYPE_STRING,
+      G_TYPE_STRING,
+      G_TYPE_UINT64,
+      G_TYPE_UINT64,
+      G_TYPE_UINT64,
+      G_TYPE_UINT64);
 
   // Create the file systems table view
   GtkWidget *file_system_treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(file_system_list_store));
@@ -299,7 +309,7 @@ int main(int argc, char *argv[]) {
 
   // Set the label for the "File Systems" notebook page
   gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(notebook), GTK_WIDGET(file_system_scrolled_window), "File Systems");
-  
+
   // Connect the "switch-page" signal to the callback
   //g_signal_connect(notebook, "switch-page", G_CALLBACK(on_switch_page), window);
 
