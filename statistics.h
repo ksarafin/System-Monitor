@@ -1,5 +1,5 @@
-#ifndef SYSTEM_MONITOR_H
-#define SYSTEM_MONITOR_H
+#ifndef STATISTICS_H
+#define STATISTICS_H
 
 #include <gtk/gtk.h>
 
@@ -20,4 +20,4 @@ void calculate_network_usage();
 double calculate_cpu_usage();
 void update_stats();
 
-#endif  // SYSTEM_MONITOR_H
+#endif  // STATISTICS_H
