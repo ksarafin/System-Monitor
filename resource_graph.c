@@ -6,37 +6,6 @@ GraphData cpu_graph_data = {NULL, "Time", "CPU Usage (%)"}; // Set default label
 GraphData memory_graph_data = {NULL, "Time", "Memory Usage (%)"}; // Set default labels for Memory graph
 GraphData network_graph_data = {NULL, "Time", "Network Usage (MB)"}; // Set default labels for Network graph
 
-
-// Function to update total bytes read and written
-/*void update_network_stats(unsigned long long *total_rx_bytes, unsigned long long *total_tx_bytes) {
-    FILE *fp;
-    char line[256];
-    char iface[MAX_IFACE_NAME];
-    unsigned long long rx_bytes, tx_bytes;
-
-    fp = fopen("/proc/net/dev", "r");
-    if (fp == NULL) {
-        perror("Error opening /proc/net/dev");
-        exit(EXIT_FAILURE);
-    }
-
-    // Read and ignore the first two lines
-    fgets(line, sizeof(line), fp);
-    fgets(line, sizeof(line), fp);
-
-    // Read network statistics for each interface
-    while (fgets(line, sizeof(line), fp) != NULL) {
-        sscanf(line, "%s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %llu %*s %*s %*s %*s %*s %*s %*s %llu",
-               iface, &rx_bytes, &tx_bytes);
-
-        // Update total bytes read and written
-        *total_rx_bytes += rx_bytes;
-        *total_tx_bytes += tx_bytes;
-    }
-
-    fclose(fp);
-}*/
-
 gboolean update_cpu_data(gpointer user_data) {
     // Update CPU usage
     double cpu_usage = get_cpu_usage();
