@@ -25,9 +25,8 @@ void populate_file_system_table(GtkListStore *list_store) {
 
     char line[1024];
     while (fgets(line, sizeof(line), file) != NULL) {
-        // Tokenize the line using whitespace as a delimiter
         char *token;
-        char *tokens[12];  // Increase the array size to accommodate all expected tokens
+        char *tokens[12];
         int tokenCount = 0;
 
         token = strtok(line, " ");
@@ -54,10 +53,6 @@ void populate_file_system_table(GtkListStore *list_store) {
                     .used_space = sb.f_blocks - sb.f_bfree
                 };
 
-                // Print debug information
-                //g_print("Device: %s, Directory: %s, Type: %s, Free: %lu, Available: %lu, Used: %lu\n",
-                  //      data.device, data.directory, data.type, data.free_space, data.available_space, data.used_space);
-
                 GtkTreeIter iter;
                 gtk_list_store_append(list_store, &iter);
                 gtk_list_store_set(list_store, &iter,
@@ -70,7 +65,8 @@ void populate_file_system_table(GtkListStore *list_store) {
                                     6, data.used_space,
                                     -1);
 
-                // Free the memory allocated for the strings in data
+                /* Free the memory allocated for the strings in data */
+
                 g_free(data.device);
                 g_free(data.directory);
                 g_free(data.type);
