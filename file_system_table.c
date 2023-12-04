@@ -6,6 +6,16 @@
 
 #include "file_system_table.h"
 
+const gchar *file_system_column_names[FILE_SYSTEM_NUM_COLUMNS] = {
+  "Device",
+  "Directory",
+  "Type",
+  "Total",
+  "Free",
+  "Available",
+  "Used"
+};
+
 void populate_file_system_table(GtkListStore *list_store) {
     FILE *file = fopen("/proc/self/mountinfo", "r");
     if (file == NULL) {
