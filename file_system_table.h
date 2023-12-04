@@ -1,10 +1,8 @@
-// file_system_table.h
 #ifndef FILE_SYSTEM_TABLE_H
 #define FILE_SYSTEM_TABLE_H
 
 #include <gtk/gtk.h>
 
-// Define the number of columns in the table
 #define FILE_SYSTEM_NUM_COLUMNS 7
 
 typedef struct {
@@ -21,4 +19,4 @@ extern const gchar *file_system_column_names[FILE_SYSTEM_NUM_COLUMNS];
 
 void populate_file_system_table(GtkListStore *list_store);
 
-#endif // FILE_SYSTEM_TABLE_H
+#endif
