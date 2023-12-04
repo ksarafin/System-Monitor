@@ -4,8 +4,8 @@
 #include <gtk/gtk.h>
 
 
-#define MAX_HISTORY 200        // Maximum number of data points to keep
-// Structure to hold usage data
+#define MAX_HISTORY 200
+
 typedef struct {
     GList *history;
     char label_x[50];

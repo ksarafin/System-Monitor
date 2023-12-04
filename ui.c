@@ -1,10 +1,10 @@
 #include <gtk/gtk.h>
-//#include <gd.h>
 #include <math.h>
 
 #include <gdk/gdkx.h>
 #include "ui.h"
 extern GtkWidget *main_window;
+
 GtkWidget *createScrolledWindow(GtkWidget *treeView) {
     GtkWidget *scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -22,31 +22,28 @@ gboolean draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     width = gdk_window_get_width(window);
     height = gdk_window_get_height(window);
 
-    // Create a new surface for drawing
+    /* Create a new surface for drawing */
+
     cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
     cairo_t *temp_cr = cairo_create(surface);
 
-    // Background color
+    /* Background color */
+
     cairo_set_source_rgb(temp_cr, 1, 1, 1);
     cairo_paint(temp_cr);
 
-    // Graph color
     cairo_set_source_rgb(temp_cr, 0, 0, 0);
 
-    // Draw the graph axes
     cairo_set_line_width(temp_cr, 1);
 
-    // Draw y-axis
     cairo_move_to(temp_cr, 50, 10);
     cairo_line_to(temp_cr, 50, height - 10);
     cairo_stroke(temp_cr);
 
-    // Draw x-axis
     cairo_move_to(temp_cr, 50, height - 10);
     cairo_line_to(temp_cr, width - 10, height - 10);
     cairo_stroke(temp_cr);
 
-    // Draw gridlines
     cairo_set_source_rgba(temp_cr, 0.5, 0.5, 0.5, 0.5);
     for (double y = 20; y < height - 10; y += (height - 30) / 10.0) {
         cairo_move_to(temp_cr, 50, y);
@@ -54,7 +51,6 @@ gboolean draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     }
     cairo_stroke(temp_cr);
 
-    // Draw the line graph based on the historical data
     GraphData *graph_data = (GraphData *)user_data;
     if (graph_data->history) {
         double interval_width = (double)(width - 60) / (MAX_HISTORY - 1);
@@ -64,7 +60,6 @@ gboolean draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
 
         double x = 50;
 
-        // Draw the line graph based on the available history
         GList *iter;
         for (iter = graph_data->history; iter != NULL; iter = g_list_next(iter)) {
             double value = GPOINTER_TO_INT(iter->data);
@@ -82,26 +77,18 @@ gboolean draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
         cairo_stroke(temp_cr);
     }
 
-   // Draw labels and other graph elements
     cairo_set_source_rgb(temp_cr, 0, 0, 0);
     cairo_select_font_face(temp_cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(temp_cr, 12);
 
-    // Draw x-axis label
-    //cairo_move_to(temp_cr, width / 2 - 20, height - 5);
-    //cairo_show_text(temp_cr, graph_data->label_x);
-
-    // Draw y-axis label
     cairo_move_to(temp_cr, 10, height / 2);
     cairo_rotate(temp_cr, -M_PI / 2.0);
     cairo_show_text(temp_cr, graph_data->label_y);
     cairo_rotate(temp_cr, M_PI / 2.0);
 
-    // Transfer the drawing to the main cairo context
     cairo_set_source_surface(cr, surface, 0, 0);
     cairo_paint(cr);
 
-    // Cleanup
     cairo_surface_destroy(surface);
     cairo_destroy(temp_cr);
 

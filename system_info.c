@@ -15,7 +15,6 @@ unsigned long get_available_disk_space() {
     unsigned long available_space;
     fscanf(fp, "%lu", &available_space);
 
-    // Close the pipe
     pclose(fp);
 
     return available_space;
@@ -51,10 +50,7 @@ void get_cpu_info(char* info_buffer, int buffer_size) {
         exit(EXIT_FAILURE);
     }
 
-    // Read the output of the command
     fgets(info_buffer, buffer_size, fp);
-
-    // Close the pipe
     pclose(fp);
 }
 

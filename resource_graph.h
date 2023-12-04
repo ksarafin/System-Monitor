@@ -3,7 +3,7 @@
 
 #include <gtk/gtk.h>
 
-#define UPDATE_INTERVAL 1000 // Update interval in milliseconds
+#define UPDATE_INTERVAL 1000
 
 GtkWidget *create_usage_page();
 
