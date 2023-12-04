@@ -20,8 +20,20 @@ from other files to generate the information needed for the GUI.
 
 * process_table.c generates information pertaining to section 1.2 in the handout. 
 
-* // statistics.c?
+* ui.c, util.c, and resource_graph.c generate graphs and information pertaining to section 1.3 in the handout
 
 * file_system_table generates information pertaining to section 1.4 in the handout. 
 
 * All .h files are header files with function and variable declarations for clarity.
+
+## Features:
+There are four tabs, one for each section of the handout as detailed above. 
+  
+The first tab is called 'System' and displays basic system information.
+  
+The second tab is called 'Processes' and displays information about running processes. The process list is updated at a fixed interval of 5 seconds. Above the four tabs is a 'View' menu that can be used to switch between viewing all processes or only processes owned by the user. Right clicking on any process displays a menu with options to stop, continue, or kill the process as well as options to view memory maps and open files.    
+  
+The third tab is called 'Resources' and displays graphs for cpu usage, memory usage, and network usage. These graphs update at a fixed interval of 5 seconds.    
+  
+The fourth tab is called 'File Systems' and displays a table of information regarding the usage of each mount point. 
+
