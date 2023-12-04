@@ -7,7 +7,6 @@
 
 #define NUM_COLUMNS 5
 
-// Enum to indicate process filter
 typedef enum {
     ALL_PROCESSES,
     USER_PROCESSES,
@@ -23,4 +22,4 @@ void showProcessDetailsDialog(int pid);
 void on_process_right_click(GtkTreeView *treeview, GdkEventButton *event, gpointer user_data);
 void on_process_double_click(GtkTreeView *treeview, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
 
-#endif // PROCESS_TABLE_H
+#endif
