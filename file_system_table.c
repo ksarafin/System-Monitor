@@ -27,7 +27,7 @@ void populate_file_system_table(GtkListStore *list_store) {
         }
 
         if (tokenCount >= 11) {
-            gchar *device_name = g_strdup(tokens[4]);
+            gchar *device_name = g_strdup(tokens[9]);
 
             struct statfs sb;
 
@@ -36,7 +36,7 @@ void populate_file_system_table(GtkListStore *list_store) {
             if (device_name != NULL) {
                 FileSystemData data = {
                     .device = device_name,
-                    .directory = g_strdup(tokens[3]),
+                    .directory = g_strdup(tokens[4]),
                     .type = g_strdup(tokens[8]),
                     .total_space = sb.f_blocks,
                     .free_space = sb.f_bfree,
