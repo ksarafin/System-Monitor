@@ -93,7 +93,7 @@ void populate_file_system_table(GtkListStore *list_store) {
                 FileSystemData data = {
                     .device = device_name,
                     .directory = g_strdup(tokens[3]),
-                    .type = strdup("IDK"),
+                    .type = g_strdup(tokens[8]),
                     .total_space = sb.f_blocks,
                     .free_space = sb.f_bfree,
                     .available_space = sb.f_bavail,
