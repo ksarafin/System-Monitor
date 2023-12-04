@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
 
+#include "statistics.h"
+
 /*
 int g_num_samples = 0; 
 int g_delay_seconds = 0;
