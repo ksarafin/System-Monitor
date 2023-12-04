@@ -6,7 +6,7 @@
 
 #include "statistics.h"
 
-/*
+
 int g_num_samples = 0; 
 int g_delay_seconds = 0;
 long int g_last_total_time = 0;
@@ -18,7 +18,7 @@ GtkWidget *memory_label;
 GtkWidget *memory_progress;
 GtkWidget *swap_label;
 GtkWidget *swap_progress;
-*/
+
 
 /* Reads from /proc/meminfo, checks if certain fields are there, and calculates memory + swap usages */
 void calculate_memory_swap_usage(double *memory_usage, double *swap_usage) {
@@ -220,19 +220,10 @@ int main(int argc, char *argv[]) {
     gtk_grid_attach(GTK_GRID(grid), swap_progress, 1, 2, 1, 1);
 
     // timer allowing us to update stats at certain time intervals
-    guint timer_id = g_timeout_add_seconds(g_delay_seconds, (GSourceFunc)on_timer_event, window);
+    guint timer_id = g_timeout_add_seconds(g_delay_seconds, (GSourceFunc)upstate_stats, window);
 
     // showing all the created widgets
     gtk_widget_show_all(window);
-
-    // starting the GTK main loop, continue until we hit as many repeats
-    while (1) {
-        // Calculate and update statistics
-        update_stats();
-
-        // Delay for the specified interval
-        sleep(g_delay_seconds);
-    }
     
     gtk_main();
 
