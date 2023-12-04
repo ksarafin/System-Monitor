@@ -8,6 +8,7 @@
 #include <sys/vfs.h>
 #include <arpa/inet.h>
 #include <sys/sysinfo.h>
+
 #include "system_info.h"
 #include "file_system_table.h"
 #include "process_table.h"
@@ -15,12 +16,9 @@
 #include "ui.h"
 #include "resource_graph.h"
 
-
-
 #define MAX_IFACE_NAME 16
 GtkWidget *main_window = NULL;
 
-// Structure to store CPU statistics
 typedef struct {
     unsigned long long user, nice, system, idle;
 } CPUStats;
@@ -48,98 +46,12 @@ void on_view_option_selected(GtkCheckMenuItem *menu_item, gpointer user_data) {
         process_type = ACTIVE_PROCESSES;
     }
 
-    // Repopulate the process table with the updated filter
     populate_process_table(GTK_LIST_STORE(user_data));
 }
 
-
-
-
-// Callback function for the "Destroy" signal of the main window
 void destroy(GtkWidget *widget, gpointer data) {
   gtk_main_quit();
 }
-
-// Callback function for handling notebook page switch
-/*void on_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data) {
-  GtkWidget *window = GTK_WIDGET(user_data);
-
-  // Get the size requisition of the current page
-  GtkRequisition requisition;
-  gtk_widget_get_preferred_size(page, NULL, &requisition);
-
-  // Set the window size based on the size requisition
-  gtk_window_resize(GTK_WINDOW(window), requisition.width, requisition.height);
-}*/
-/*
-GtkWidget *createBasicInfoPage() {
-    char basicinfo_buffer[1024];
-    get_system_info(basicinfo_buffer, sizeof(basicinfo_buffer));
-    GtkWidget *basicInfoLabel = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(basicInfoLabel), basicinfo_buffer);
-    return basicInfoLabel;
-}
-gint createNotebookPage(GtkNotebook *notebook, const char *labelText, GtkWidget *content) {
-    GtkWidget *label = gtk_label_new(labelText);
-    return gtk_notebook_append_page(notebook, content, label);
-}
-GtkWidget *createNotebook() {
-    GtkWidget *notebook = gtk_notebook_new();
-    //gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
-
-    createNotebookPage(notebook, "System", createBasicInfoPage());
-    createNotebookPage(notebook, "Processes", createProcessesPage());
-    createNotebookPage(notebook, "Resources", createBasicInfoPage());
-    createNotebookPage(notebook, "File Systems", createBasicInfoPage());
-
-    return notebook;
-}
-
-GtkWidget *createViewMenu() {
-    GtkWidget *viewMenu = gtk_menu_new();
-
-    view_all_processes_item = gtk_radio_menu_item_new_with_label(NULL, "View All Processes");
-    view_user_processes_item = gtk_radio_menu_item_new_with_label_from_widget(GTK_RADIO_MENU_ITEM(view_all_processes_item), "View User Processes");
-
-    GtkWidget *viewMenuItem = gtk_menu_item_new_with_label("View");
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(viewMenuItem), viewMenu);
-    gtk_menu_shell_append(GTK_MENU_SHELL(viewMenu), view_all_processes_item);
-    gtk_menu_shell_append(GTK_MENU_SHELL(viewMenu), view_user_processes_item);
-
-    g_signal_connect(view_all_processes_item, "toggled", G_CALLBACK(on_view_option_selected), NULL);
-    g_signal_connect(view_user_processes_item, "toggled", G_CALLBACK(on_view_option_selected), NULL);
-
-    return viewMenuItem;
-}
-
-GtkWidget *createMenuBar() {
-    GtkWidget *menuBar = gtk_menu_bar_new();
-
-    GtkWidget *viewMenu = createViewMenu();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), viewMenu);
-
-    return menuBar;
-}
-
-GtkWidget *createMainWindow() {
-    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "System Monitor");
-    gtk_window_set_default_size(GTK_WINDOW(window), 900, 1100);
-    g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-
-    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add(GTK_CONTAINER(window), vbox);
-
-    GtkWidget *menuBar = createMenuBar();
-    gtk_box_pack_start(GTK_BOX(vbox), menuBar, FALSE, FALSE, 0);
-
-    GtkWidget *notebook = createNotebook();
-    gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
-
-    return window;
-}
-
-*/
 
 // Function to refresh the process list
 gboolean refresh_process_list(gpointer user_data) {
@@ -295,9 +207,6 @@ int main(int argc, char *argv[]) {
 
     // Add a signal handler for the view_user_processes_item
   g_signal_connect(view_user_processes_item, "toggled", G_CALLBACK(on_view_option_selected), process_list_store);
-
-  // Connect the "switch-page" signal to the callback
-  //g_signal_connect(notebook, "switch-page", G_CALLBACK(on_switch_page), window);
 
   // Show all widgets
   gtk_widget_show_all(window);
