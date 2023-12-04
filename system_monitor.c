@@ -9,6 +9,25 @@
 #include "file_system_table.h"
 #include "process_table.h"
 
+// Add this global variable to store the user's choice
+gboolean show_all_processes = FALSE;
+
+GtkWidget *view_all_processes_item;
+GtkWidget *view_user_processes_item;
+
+void on_view_option_selected(GtkCheckMenuItem *menu_item, gpointer user_data) {
+    // Check which menu item was toggled
+    if (menu_item == GTK_CHECK_MENU_ITEM(view_all_processes_item)) {
+        show_all_processes = TRUE;
+    } else if (menu_item == GTK_CHECK_MENU_ITEM(view_user_processes_item)) {
+        show_all_processes = FALSE;
+    }
+
+    // Repopulate the process table with the updated filter
+    populate_process_table(GTK_LIST_STORE(user_data));
+}
+
+
 void on_process_right_click(GtkTreeView *treeview, GdkEventButton *event, gpointer user_data) {
     if (event->type == GDK_BUTTON_PRESS && event->button == GDK_BUTTON_SECONDARY) {
         // Get the path at the click position
@@ -52,7 +71,6 @@ void destroy(GtkWidget *widget, gpointer data) {
   gtk_main_quit();
 }
 
-
 // Callback function for handling notebook page switch
 /*void on_switch_page(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data) {
   GtkWidget *window = GTK_WIDGET(user_data);
@@ -83,17 +101,17 @@ int main(int argc, char *argv[]) {
   GtkWidget *menu_bar = gtk_menu_bar_new();
   gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
 
-  GtkWidget *view_menu = gtk_menu_new();
-  GtkWidget *view_all_processes_item = gtk_radio_menu_item_new_with_label(NULL, "View All Processes");
-  GtkWidget *view_user_processes_item = gtk_radio_menu_item_new_with_label_from_widget(GTK_RADIO_MENU_ITEM(view_all_processes_item), "View User Processes");
+  //GtkWidget *view_menu = gtk_menu_new();
+  view_all_processes_item = gtk_radio_menu_item_new_with_label(NULL, "View All Processes");
+  view_user_processes_item = gtk_radio_menu_item_new_with_label_from_widget(GTK_RADIO_MENU_ITEM(view_all_processes_item), "View User Processes");
 
+  GtkWidget *view_menu = gtk_menu_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_all_processes_item);
   gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), view_user_processes_item);
 
   GtkWidget *view_menu_item = gtk_menu_item_new_with_label("View");
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(view_menu_item), view_menu);
   gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), view_menu_item);
-
 
   // Create a notebook for tabs
   GtkWidget *notebook = gtk_notebook_new();
@@ -191,6 +209,11 @@ int main(int argc, char *argv[]) {
 
   // Set the label for the "File Systems" notebook page
   gtk_notebook_set_tab_label_text(GTK_NOTEBOOK(notebook), GTK_WIDGET(file_system_scrolled_window), "File Systems");
+
+  g_signal_connect(view_all_processes_item, "toggled", G_CALLBACK(on_view_option_selected), process_list_store);
+
+    // Add a signal handler for the view_user_processes_item
+  g_signal_connect(view_user_processes_item, "toggled", G_CALLBACK(on_view_option_selected), process_list_store);
 
   // Connect the "switch-page" signal to the callback
   //g_signal_connect(notebook, "switch-page", G_CALLBACK(on_switch_page), window);
