@@ -18,6 +18,7 @@ GtkWidget *swap_label;
 GtkWidget *swap_progress;
 */
 
+/* Reads from /proc/meminfo, checks if certain fields are there, and calculates memory + swap usages */
 void calculate_memory_swap_usage(double *memory_usage, double *swap_usage) {
     // Open /proc/meminfo for reading
     FILE *meminfo_file = fopen("/proc/meminfo", "r");
@@ -53,6 +54,7 @@ void calculate_memory_swap_usage(double *memory_usage, double *swap_usage) {
     *swap_usage = ((total_swap - free_swap) * 100.0) / total_swap;
 }
 
+/* calculate network usage by reading from /proc/net/dev and taking the necessary info (parsing manually) */
 void calculate_network_usage() {
     // Open /proc/net/dev for reading
     FILE *netdev_file = fopen("/proc/net/dev", "r");
@@ -86,6 +88,10 @@ void calculate_network_usage() {
     printf("Received Bytes: %ld, Transmitted Bytes: %ld\n", received_bytes, transmitted_bytes);
 }
 
+/* 
+ * calculates cpu usage by tokenizing each line of the statistics file to
+ * extract info for idle time -> helpful to know when to refresh the graphs
+ */
 double calculate_cpu_usage() { 
     // variables to store information from /proc/stat
     char stat_line[100];
@@ -134,6 +140,7 @@ double calculate_cpu_usage() {
     return 100 - idle_percentage;
 }
 
+/* incorporating gtk where we take our calculations and update the GUI with them */
 void update_stats() {
     double cpu_usage = 0.0;
     double memory_usage = 0.0;
@@ -163,7 +170,7 @@ void update_stats() {
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(swap_progress), swap_usage / 100.0);
 }
 
-
+/* main function -> format the gtk GUI, periodically updating it with refreshed stats */
 int main(int argc, char *argv[]) {
     // check if the correct number of command-line arguments is provided
     if (argc != 3) {
