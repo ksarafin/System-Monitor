@@ -37,3 +37,5 @@ The third tab is called 'Resources' and displays graphs for cpu usage, memory us
   
 The fourth tab is called 'File Systems' and displays a table of information regarding the usage of each mount point. 
 
+Extra features: View Active Processes and Load Averages in Process tab
+
