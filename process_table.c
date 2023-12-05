@@ -456,25 +456,31 @@ void populate_process_table(GtkListStore *list_store) {
 }
 
 void showProcessDetailsDialog(int pid) {
+    // Compose the path to the /proc/[pid]/stat file
     char stat_path[256];
     snprintf(stat_path, sizeof(stat_path), "/proc/%d/stat", pid);
 
+    // Open the /proc/[pid]/stat file
     FILE *stat_file = fopen(stat_path, "r");
     if (stat_file == NULL) {
         perror("Error opening stat file");
         return;
     }
 
-    /* Read the contents of the stat file to get process information */
+    // Open the /proc/[pid]/statm file
+    char statm_path[256];
+    snprintf(statm_path, sizeof(statm_path), "/proc/%d/statm", pid);
+    FILE *statm_file = fopen(statm_path, "r");
 
+
+    // Read the contents of the stat file to get process information
     int process_pid;
     char process_name[256];
     char state;
     int ppid, pgrp, session, tty_nr;
-    unsigned long long utime, stime, vsize, rss;
-    unsigned long starttime;
-    int matches = fscanf(stat_file, "%d (%255[^)]) %c %d %d %d %d %*d %*d %*d %*d %*d %llu %llu %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %llu",
-                        &process_pid, process_name, &state, &ppid, &pgrp, &session, &tty_nr, &utime, &stime, &vsize, &rss, &starttime);
+    unsigned long long starttime;
+    unsigned long utime, stime, vsize, rss;
+    int matches = fscanf(stat_file, "%d %s %c %d %d %d %d %*d %*u %*lu %*lu %*lu %*lu %lu %lu%*ld %*ld %*ld %*ld %*ld %*ld %llu %lu %ld",                      &process_pid, process_name, &state, &ppid, &pgrp, &session, &tty_nr, &utime, &stime, &starttime, &vsize, &rss);
 
 
     fclose(stat_file);
@@ -484,39 +490,61 @@ void showProcessDetailsDialog(int pid) {
         return;
     }
 
-    GtkWidget *dialog = gtk_dialog_new_with_buttons("Process Details", NULL, 0, "OK", GTK_RESPONSE_OK, NULL);
+    // Read shared memory from statm
+    int shared;
+    fscanf(statm_file, "%*d %*d %d", &shared);
+
+    fclose(statm_file);
+
+    // Create a new dialog window to display process details
+    //GtkWidget *dialog = gtk_dialog_new_with_buttons("Process Details", NULL, 0, NULL);
+
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+      "Process Details",
+      NULL,
+      0,
+      "OK",
+      GTK_RESPONSE_OK,
+      NULL
+    );
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 200);
 
-    /* Create labels to display process information */
+    // Create labels to display process information
     GtkWidget *nameLabel = gtk_label_new(g_strdup_printf("Name: %s", process_name));
     GtkWidget *pidLabel = gtk_label_new(g_strdup_printf("PID: %d", process_pid));
     GtkWidget *stateLabel = gtk_label_new(g_strdup_printf("State: %c", state));
-    GtkWidget *memoryLabel = gtk_label_new(g_strdup_printf("Memory: %llu KB", rss));
-    GtkWidget *vMemoryLabel = gtk_label_new(g_strdup_printf("Virtual Memory: %llu KB", vsize));
-    GtkWidget *cpuTimeLabel = gtk_label_new(g_strdup_printf("CPU Time: %llu:%llu", utime, stime));
-    GtkWidget *startTimeLabel = gtk_label_new(g_strdup_printf("Start Time: %lu", starttime));
+    GtkWidget *memoryLabel = gtk_label_new(g_strdup_printf("Memory: %lu B", rss));
+    GtkWidget *vMemoryLabel = gtk_label_new(g_strdup_printf("Virtual Memory: %lu Pages", vsize));
+    GtkWidget *sharedLabel = gtk_label_new(g_strdup_printf("Shared Memory: %d Pages", shared));
+    GtkWidget *cpuTimeLabel = gtk_label_new(g_strdup_printf("CPU Time: \nKernel Mode - %lu Clock Ticks\nUser Mode - %lu Clock Ticks", utime, stime));
+    GtkWidget *startTimeLabel = gtk_label_new(g_strdup_printf("Start Time: %llu Clock Ticks", starttime));
 
-    /* Create a vertical box to organize labels */
-
+    // Create a vertical box to organize labels
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), vbox);
 
-    /* Add labels to the vertical box */
+    // Add labels to the vertical box
     gtk_box_pack_start(GTK_BOX(vbox), nameLabel, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), pidLabel, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), stateLabel, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), memoryLabel, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), vMemoryLabel, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), sharedLabel, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), cpuTimeLabel, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), startTimeLabel, FALSE, FALSE, 0);
 
+    // Add a close button to the dialog
     GtkWidget *closeButton = gtk_button_new_with_label("Close");
     g_signal_connect_swapped(closeButton, "clicked", G_CALLBACK(gtk_widget_destroy), dialog);
 
     GtkWidget *contentArea = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     gtk_container_add(GTK_CONTAINER(contentArea), closeButton);
 
+    //gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(dialog))), closeButton);
+
+    // Show all widgets
     gtk_widget_show_all(dialog);
 }
+
 
