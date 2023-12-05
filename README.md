@@ -31,7 +31,7 @@ Our system monitor contains four tabs, one for each section of the handout as de
   
 The first tab is called 'System' and displays basic system information.
   
-The second tab is called 'Processes' and displays information about running processes. The process list is updated at a fixed interval of 5 seconds. Above the four tabs is a 'View' menu that can be used to switch between viewing all processes or only processes owned by the user. Right clicking on any process displays a menu with options to stop, continue, or kill the process as well as options to view memory maps and open files.    
+The second tab is called 'Processes' and displays information about running processes. The process list is updated at a fixed interval of 5 seconds. Above the four tabs is a 'View' menu that can be used to switch between viewing all processes or only processes owned by the user. Next to the 'View' menu is the 'File' menu which exits the window. Right clicking on any process displays a menu with options to stop, continue, or kill the process as well as options to view memory maps and open files. An extra feature we added is the load averages above the processes table. 
   
 The third tab is called 'Resources' and displays graphs for cpu usage, memory usage, and network usage. These graphs update at a fixed interval of 1000 milliseconds.    
   
