@@ -14,6 +14,7 @@ typedef struct {
 
 GtkWidget *createScrolledWindow(GtkWidget *treeView);
 
-gboolean draw_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data);
+gboolean draw_network_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data);
+gboolean draw_cpu_memory_graph(GtkWidget *widget, cairo_t *cr, gpointer user_data);
 
 #endif
