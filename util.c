@@ -42,6 +42,22 @@ double get_cpu_usage() {
     return cpu_usage;
 }
 
+void get_load_averages(double loadavg[3]) {
+    FILE *file = fopen("/proc/loadavg", "r");
+    if (!file) {
+        perror("Error opening /proc/loadavg");
+        return;
+    }
+
+    if (fscanf(file, "%lf %lf %lf", &loadavg[0], &loadavg[1], &loadavg[2]) != 3) {
+        perror("Error reading load averages");
+        fclose(file);
+        return;
+    }
+
+    fclose(file);
+}
+
 double get_process_cpu_usage(int pid) {
     char filename[256];
     FILE *stat_file;

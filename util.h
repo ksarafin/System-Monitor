@@ -5,5 +5,7 @@ double get_cpu_usage();
 double get_memory_usage();
 double get_network_usage();
 double get_process_cpu_usage(int pid);
+void get_load_averages(double loadavg[3]);
+
 
 #endif
