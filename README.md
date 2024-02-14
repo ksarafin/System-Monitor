@@ -1,4 +1,4 @@
-# CS252 Project 6
+# System Monitor
 
 ## Team Members:
 Katherine Sarafin  
